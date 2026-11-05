@@ -1,0 +1,239 @@
+<simulation>
+     <control>
+       <duration>721</duration>
+       <startmonth>1</startmonth>
+       <startyear>2018</startyear>
+       <decay>never</decay>
+       <explicit_inventory>true</explicit_inventory>
+     </control>
+
+
+     <archetypes>
+       <spec>
+         <lib>cycamore</lib>
+         <name>Enrichment</name>
+       </spec>
+       <spec>
+         <lib>cycamore</lib>
+         <name>Reactor</name>
+       </spec>
+       <spec>
+         <lib>cycamore</lib>
+         <name>Source</name>
+       </spec>
+       <spec>
+         <lib>cycamore</lib>
+         <name>Sink</name>
+       </spec>
+       <spec>
+         <lib>cycamore</lib>
+         <name>Separations</name>
+       </spec>
+       <spec>
+         <lib>cycamore</lib>
+         <name>Mixer</name>
+       </spec>
+       <spec>
+         <lib>agents</lib>
+         <name>NullRegion</name>
+       </spec>
+       <spec>
+         <lib>agents</lib>
+         <name>NullInst</name>
+       </spec>
+     </archetypes>
+
+
+     <commodity>
+         <name>u_ore</name>
+         <solution_priority>1.0</solution_priority>
+       </commodity>
+       <commodity>
+         <name>startup_met</name>
+         <solution_priority>1.0</solution_priority>
+       </commodity>
+       <commodity>
+         <name>tails</name>
+         <solution_priority>1.0</solution_priority>
+       </commodity>
+       <commodity>
+         <name>spent_met</name>
+         <solution_priority>1.0</solution_priority>
+       </commodity>
+       <commodity>
+         <name>waste</name>
+         <solution_priority>1.0</solution_priority>
+       </commodity>
+       <commodity>
+         <name>sep_pu</name>
+         <solution_priority>1.0</solution_priority>
+       </commodity>
+       <commodity>
+         <name>spent_uox</name>
+         <solution_priority>1.0</solution_priority>
+     </commodity>
+    
+
+     <recipe>
+       <name>nat_u</name>
+       <basis>mass</basis>
+       <nuclide>
+         <id>92235</id>
+         <comp>0.00711</comp>
+       </nuclide>
+       <nuclide>
+         <id>92238</id>
+         <comp>0.99289</comp>
+       </nuclide>
+     </recipe>
+
+     <recipe>
+       <name>startup_met</name>
+       <basis>mass</basis>
+       <nuclide>
+         <id>92235</id>
+         <comp>0.08</comp>
+       </nuclide>
+       <nuclide>
+         <id>92238</id>
+         <comp>0.92</comp>
+       </nuclide>
+     </recipe>
+
+     <recipe>
+       <name>tails</name>
+       <basis>mass</basis>
+       <nuclide>
+         <id>92235</id>
+         <comp>0.003</comp>
+       </nuclide>
+       <nuclide>
+         <id>92238</id>
+         <comp>0.997</comp>
+       </nuclide>
+     </recipe>
+
+     <recipe>
+       <name>spent_met</name>
+       <basis>mass</basis>
+       <!-- nuclide compositions kept the same for spent fuel -->
+       <!-- very likely that composition is different, but I don't feel like guessing :) -->
+       <nuclide> 
+         <id>92238</id>
+         <comp>0.92</comp>
+       </nuclide>
+       <nuclide>
+         <id>94239</id>
+         <comp>0.015</comp>
+       </nuclide>
+       <nuclide>
+         <id>55137</id>
+         <comp>0.065</comp>
+       </nuclide>
+     </recipe>
+
+  
+    <facility>
+      <name>SFR</name>
+      <config>
+        <Reactor>
+          <fuel_incommods><val>startup_met</val><val>tails</val></fuel_incommods>
+          <fuel_inrecipes><val>startup_met</val><val>tails</val></fuel_inrecipes>
+          <fuel_prefs><val>2.0</val><val>1.0</val></fuel_prefs>
+          
+          <!-- Start up w/ fresh UOx then switch to tails -->
+          <pref_change_times><val>3</val></pref_change_times> 
+          <pref_change_commods><val>tails</val></pref_change_commods>
+          <pref_change_values><val>3.0</val></pref_change_values>
+
+          <fuel_outcommods><val>spent_met</val></fuel_outcommods>
+          <fuel_outrecipes><val>spent_met</val></fuel_outrecipes>
+
+          <cycle_time>47</cycle_time>
+          <refuel_time>1</refuel_time>
+
+          <assem_size>4044</assem_size>
+          <n_assem_core>15</n_assem_core>
+          <n_assem_batch>1</n_assem_batch>
+          <power_cap>480</power_cap>
+        </Reactor>
+      </config>
+  </facility>
+
+
+   <facility>
+     <name>UraniumMine</name>
+     <config>
+       <Source>
+         <outcommod>u_ore</outcommod>
+       </Source>
+     </config>
+   </facility>
+
+   <facility>
+     <name>NuclearRepository</name>
+     <config>
+       <Sink>
+         <in_commods><val>spent_met</val></in_commods>
+       </Sink>
+     </config>
+   </facility>
+
+
+   <facility>
+     <name>EnrichmentPlant</name>
+     <config>
+       <Enrichment>
+         <feed_commod>u_ore</feed_commod>
+         <feed_recipe>nat_u</feed_recipe>
+         <product_commod>startup_met</product_commod>
+         <tails_commod>tails</tails_commod>
+         <initial_feed>2000000</initial_feed>
+         <max_feed_inventory>2000000</max_feed_inventory>
+       </Enrichment>
+     </config>
+   </facility>
+   
+    
+   <region>
+     <name>USA</name>
+     <config>
+       <NullRegion/>
+     </config>
+
+     <institution>
+       <initialfacilitylist>
+         <entry>
+           <prototype>SFR</prototype>
+           <number>1</number>
+         </entry>
+         </initialfacilitylist>
+       <name>Exelon</name>
+       <config>
+         <NullInst/>
+       </config>
+     </institution>
+
+     <institution>
+       <initialfacilitylist>
+         <entry>
+           <prototype>UraniumMine</prototype>
+           <number>1</number>
+         </entry>
+         <entry>
+           <prototype>EnrichmentPlant</prototype>
+           <number>1</number>
+         </entry>
+         <entry>
+           <prototype>NuclearRepository</prototype>
+           <number>1</number>
+         </entry>
+       </initialfacilitylist>
+       <name>United States Nuclear</name>
+       <config>
+         <NullInst/>
+       </config>
+     </institution>
+   </region>
+
+   </simulation>
